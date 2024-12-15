@@ -1,0 +1,215 @@
+openapi: 3.0.0
+info:
+  title: CrediDeb API
+  description: API para gerenciamento de transações financeiras, incluindo crédito, débito e consulta de saldo.
+  version: 1.0.0
+paths:
+  /conta:
+    post:
+      tags:
+       - conta
+      operationId: createConta
+      summary: Criar conta
+      description: Criação de contas para transações de crédito e débito.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContaRequest'
+      responses:
+        '200':
+          description: Transações processadas com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContaResponse'
+  /conta/{agencia}/{conta}/saldo:
+    get:
+      tags:
+        - conta
+      operationId: getSaldoConta
+      summary: Consultar saldo
+      description: Obtém o saldo atual de uma conta específica.
+      parameters:
+        - name: agencia
+          in: path
+          required: true
+          description: agencia da conta
+          schema:
+            type: integer
+        - name: conta
+          in: path
+          required: true
+          description: conta
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Saldo atual da conta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaldoResponse'
+  /transacoes:
+    post:
+      tags:
+       - transacoes
+      operationId: createTransacoes
+      summary: Criar transações
+      description: Realiza lançamentos de crédito e débito em uma conta específica, permitindo múltiplos lançamentos em uma única requisição.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransacoesRequest'
+      responses:
+        '200':
+          description: Transações processadas com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransacoesResponse'
+
+  /contas/{agencia}/{conta}/transacoes:
+    get:
+      tags:
+        - transacoes
+      operationId: getHiscoricoTransacoes
+      summary: Consultar histórico de transações
+      description: Retorna o histórico de transações de uma conta, com filtros opcionais por data.
+      parameters:
+        - name: agencia
+          in: path
+          required: true
+          description: agencia da conta
+          schema:
+            type: integer
+        - name: conta
+          in: path
+          required: true
+          description: conta
+          schema:
+            type: integer
+        - name: dataInicio
+          in: query
+          required: false
+          description: Data de início do filtro
+          schema:
+            type: string
+            format: date
+        - name: dataFim
+          in: query
+          required: false
+          description: Data de fim do filtro
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Histórico de transações
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransacoesHistoricoResponse'
+
+components:
+  schemas:
+    ContaRequest:
+      type: object
+      properties:
+        nome:
+          type: string
+          description: Nome do cliente da conta
+          example: "joão pé de feijão"
+        agencia:
+          type: integer
+          description: Agência da conta
+          example: 1234
+        conta:
+          type: integer
+          description: Numero da conta
+          example: 123456
+    TransacoesRequest:
+      type: object
+      properties:
+        agencia:
+          type: integer
+          description: Agencia da conta
+          example: 222222
+        conta:
+          type: integer
+          description: Conta
+          example: 1111
+        transacoes:
+          type: array
+          items:
+            type: object
+            properties:
+              tipo:
+                type: string
+                enum: [ CREDITO, DEBITO ]
+                description: Tipo de transação (CREDITO ou DEBITO)
+              valor:
+                type: number
+                format: decimal
+                description: Valor da transação
+              descricao:
+                type: string
+                description: Descrição opcional da transação
+    ContaResponse:
+      type: object
+      properties:
+        mensagem:
+          type: string
+          example: "Conta criada com sucesso."
+    TransacoesResponse:
+      type: object
+      properties:
+        mensagem:
+          type: string
+          example: "Transações processadas com sucesso."
+    SaldoResponse:
+      type: object
+      properties:
+        numeroConta:
+          type: integer
+          example: "123456"
+        agencia:
+          type: integer
+          example: "123456"
+        saldoAtual:
+          type: number
+          format: decimal
+          example: 150.00
+    TransacoesHistoricoResponse:
+      type: object
+      properties:
+        agencia:
+          type: integer
+          example: 123456
+        numeroConta:
+          type: integer
+          example: 123456
+        transacoes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transacao'
+    Transacao:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+        tipo:
+          type: string
+          enum: [ CREDITO, DEBITO ]
+        valor:
+          type: number
+          format: decimal
+          example: 100.00
+        data:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"

@@ -1,0 +1,56 @@
+name: 'CrediDeb Environment'
+
+services:
+  credideb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: credideb:0.0.1  # Gera a imagem a partir do Dockerfile, caso nao exista.
+    container_name: credideb
+    hostname: api
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_DATABASE: crediDebDb
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 9010:9010
+      - 8080:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '1.2'
+          memory: '1.2GB'
+    networks:
+      - networker
+
+  db: # Banco de dados
+    image: mysql:8.4.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: crediDebDb
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: ["CMD", "mysql", "--user=user", "--password=password", "--execute", "SELECT 1"]
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '1.5GB'
+    networks:
+      - networker
+
+networks:
+  networker: {}

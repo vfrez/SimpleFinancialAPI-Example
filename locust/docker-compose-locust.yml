@@ -1,0 +1,36 @@
+name: 'CrediDeb Environment'
+
+services:
+  master:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --master -H http://credideb:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: '0.5GB'
+    networks:
+      - networker
+
+  worker:
+    image: locustio/locust
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --worker --master-host master
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: '0.5GB'
+    networks:
+      - networker
+
+#Vai usar a mesma rede do docker-compose principal
+#Assim da pra chamar os serviços pelo nome
+networks:
+  networker:
+    external: false

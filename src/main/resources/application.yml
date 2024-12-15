@@ -1,0 +1,44 @@
+# Valores podem ser definidos pelo docker-compose
+environment:
+  dbHost: ${DB_HOST:localhost}
+  dbPort: ${DB_PORT:3306}
+  dbUser: ${DB_USER:user}
+  dbPassword: ${DB_PASSWORD:password}
+  dbDatabase: ${DB_DATABASE:crediDebDb}
+
+server:
+  servlet:
+    context-path: /api/v1
+  tomcat:
+    connection-timeout: 20000 #tempo máximo de espera por uma conexão
+
+spring:
+  application:
+    name: CrediDeb
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      #Valida o esquema do banco de dados com as entidades mapeadas
+      ddl-auto: validate
+      naming:
+        #Para encontrar tabelas uppercase no banco de dados, por padrão o hibernate busca tudo com lowercase
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  datasource:
+    url: jdbc:mysql://${environment.dbHost}:${environment.dbPort}/${environment.dbDatabase}?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${environment.dbUser}
+    password: ${environment.dbPassword}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 100           # Máximo de conexões ativas no pool
+      minimum-idle: 10                # Mínimo de conexões inativas (conexões que podem ser reutilizadas rapidamente)
+      connection-timeout: 30000       # Tempo máximo que a aplicação aguarda para obter uma conexão (em milissegundos)
+      idle-timeout: 300000            # Tempo que uma conexão ociosa pode ficar sem ser fechada (em milissegundos)
+      max-lifetime: 1800000           # Tempo máximo de vida de uma conexão (em milissegundos)
+      validation-timeout: 3000        # Tempo máximo para validar uma conexão (em milissegundos)
+      leak-detection-threshold: 2000  # Detecção de vazamento de conexões, se uma conexão ficar aberta por mais de 2 segundos
+  sql:
+    init:
+      #A inicialização do banco de dados (execução dos scripts SQL) ocorre toda vez que a aplicação é iniciada.
+      mode: always
+
+#logging.level.org.springframework.web: DEBUG

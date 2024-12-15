@@ -1,0 +1,16 @@
+{
+    "agencia": 1010,
+    "conta": 1010,
+    "transacoes": [
+      {
+        "tipo": "CREDITO",
+        "valor": 10,
+        "descricao": "Pagamento de coisas"
+      },
+      {
+        "tipo": "CREDITO",
+        "valor": 10,
+        "descricao": "Pagamento de coisas2"
+      }
+    ]
+  }
