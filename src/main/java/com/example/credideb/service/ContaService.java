@@ -5,7 +5,9 @@ import com.example.credideb.model.ContaEntity;
 import com.example.credideb.model.TransacaoEntity;
 import com.example.credideb.repository.ContaRepository;
 import com.example.credideb.repository.TransacaoRepository;
+import com.example.credideb.service.mapper.ContaMapper;
 import com.example.model.ContaRequestDTO;
+import com.example.model.ContaResponseDTO;
 import com.example.model.SaldoResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,10 +28,14 @@ public class ContaService {
     @Autowired
     private TransacaoRepository transacaoRepository;
 
-    public String createConta(ContaRequestDTO contaRequestDTO) {
-        log.info("Criando conta: {} e agência: {}", contaRequestDTO.getConta(), contaRequestDTO.getAgencia());
+    public ContaResponseDTO createConta(ContaRequestDTO contaRequestDTO) {
+        log.info("Criando conta para agência: {}", contaRequestDTO.getAgencia());
+
         try {
-            return saveConta(contaRequestDTO);
+            ContaEntity contaEntity = saveConta(contaRequestDTO);
+            log.info("Criada conta {} para agência: {}", contaEntity.getNumeroConta(), contaEntity.getAgencia());
+
+            return ContaMapper.mapToContaContaResponse(contaEntity);
         }
         catch (Exception e) {
             log.error("Erro ao criar conta: {}", e.getMessage(), e);
@@ -40,42 +46,27 @@ public class ContaService {
     public SaldoResponseDTO calculateContaSaldo(Integer agencia, Integer conta) {
         log.info("Calculando saldo da conta: {} e agência: {}", conta, agencia);
 
-        BigDecimal saldoConta = getTransactionAndCalculate(agencia, conta);
-
+        BigDecimal saldoConta = getTransacoesAndCalculate(agencia, conta);
         log.info("Saldo calculado para conta: {} e agência: {} é {}", conta, agencia, saldoConta);
 
-        return mapToSaldoResponseDTO(agencia, conta, saldoConta);
+        return ContaMapper.mapToSaldoResponseDTO(agencia, conta, saldoConta);
     }
 
-    private SaldoResponseDTO mapToSaldoResponseDTO(Integer agencia, Integer conta, BigDecimal saldoConta) {
-        SaldoResponseDTO saldoResponseDTO = new SaldoResponseDTO();
-        saldoResponseDTO.setAgencia(agencia);
-        saldoResponseDTO.setNumeroConta(conta);
-        saldoResponseDTO.setSaldoAtual(saldoConta);
 
-        return saldoResponseDTO;
+    @Transactional
+    private ContaEntity saveConta(ContaRequestDTO contaRequestDTO) {
+        Optional<Integer> nextNumeroConta = getNextNumeroContaByAgencia(contaRequestDTO);
+
+        ContaEntity contaEntity = ContaMapper.mapToContaEntity(contaRequestDTO, nextNumeroConta.orElse(1));
+        return contaRepository.save(contaEntity);
+    }
+
+    private Optional<Integer> getNextNumeroContaByAgencia(ContaRequestDTO contaRequestDTO) {
+        return contaRepository.findNextNumeroContaByAgencia(contaRequestDTO.getAgencia());
     }
 
     @Transactional
-    private String saveConta(ContaRequestDTO contaRequestDTO) {
-        ContaEntity contaEntity = mapToContaEntity(contaRequestDTO);
-        contaRepository.save(contaEntity);
-
-        return String.format("Criadas conta %s e agencia %s com sucesso.", contaRequestDTO.getConta(), contaRequestDTO.getAgencia());
-    }
-
-    private ContaEntity mapToContaEntity(ContaRequestDTO contaRequestDTO) {
-        ContaEntity contaEntity = ContaEntity.builder()
-                .nome(contaRequestDTO.getNome())
-                .agencia(contaRequestDTO.getAgencia())
-                .numeroConta(contaRequestDTO.getConta())
-                .dataCriacao(LocalDateTime.now())
-                .build();
-        return contaEntity;
-    }
-
-    @Transactional
-    private BigDecimal getTransactionAndCalculate(Integer agencia, Integer conta) {
+    private BigDecimal getTransacoesAndCalculate(Integer agencia, Integer conta) {
         List<TransacaoEntity> transacoesList = transacaoRepository.findByContaAgenciaAndContaNumeroConta(agencia, conta);
 
         return transacoesList.stream()

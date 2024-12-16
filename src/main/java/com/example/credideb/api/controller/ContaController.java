@@ -17,10 +17,7 @@ public class ContaController implements ContaApi {
 
     @Override
     public ResponseEntity<ContaResponseDTO> createConta(ContaRequestDTO contaRequestDTO) {
-        String contaResponseMessage = contaService.createConta(contaRequestDTO);
-
-        ContaResponseDTO contaResponseDTO = new ContaResponseDTO();
-        contaResponseDTO.setMensagem(contaResponseMessage);
+        ContaResponseDTO contaResponseDTO = contaService.createConta(contaRequestDTO);
 
         return ResponseEntity.ok().body(contaResponseDTO);
     }

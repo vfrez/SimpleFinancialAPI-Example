@@ -127,10 +127,6 @@ components:
           type: integer
           description: Agência da conta
           example: 1234
-        conta:
-          type: integer
-          description: Numero da conta
-          example: 123456
     TransacoesRequest:
       type: object
       properties:
@@ -161,9 +157,12 @@ components:
     ContaResponse:
       type: object
       properties:
-        mensagem:
-          type: string
-          example: "Conta criada com sucesso."
+        agencia:
+          type: integer
+          example: 123456
+        conta:
+          type: integer
+          example: 123456
     TransacoesResponse:
       type: object
       properties:
@@ -173,10 +172,10 @@ components:
     SaldoResponse:
       type: object
       properties:
-        numeroConta:
+        agencia:
           type: integer
           example: "123456"
-        agencia:
+        numeroConta:
           type: integer
           example: "123456"
         saldoAtual:
@@ -199,9 +198,6 @@ components:
     Transacao:
       type: object
       properties:
-        id:
-          type: string
-          example: "1"
         tipo:
           type: string
           enum: [ CREDITO, DEBITO ]

@@ -35,7 +35,7 @@ spring:
       idle-timeout: 300000            # Tempo que uma conexão ociosa pode ficar sem ser fechada (em milissegundos)
       max-lifetime: 1800000           # Tempo máximo de vida de uma conexão (em milissegundos)
       validation-timeout: 3000        # Tempo máximo para validar uma conexão (em milissegundos)
-      leak-detection-threshold: 2000  # Detecção de vazamento de conexões, se uma conexão ficar aberta por mais de 2 segundos
+      #leak-detection-threshold: 4000  # Detecção de vazamento de conexões, se uma conexão ficar aberta por mais de 4 segundos
   sql:
     init:
       #A inicialização do banco de dados (execução dos scripts SQL) ocorre toda vez que a aplicação é iniciada.

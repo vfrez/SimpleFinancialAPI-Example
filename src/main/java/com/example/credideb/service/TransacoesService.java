@@ -92,6 +92,8 @@ public class TransacoesService {
                 .collect(Collectors.toList());
 
         TransacoesHistoricoResponseDTO transacoesHistoricoResponseDTO = new TransacoesHistoricoResponseDTO();
+        transacoesHistoricoResponseDTO.setAgencia(agencia);
+        transacoesHistoricoResponseDTO.setNumeroConta(conta);
         transacoesHistoricoResponseDTO.setTransacoes(transacoes);
 
         return transacoesHistoricoResponseDTO;
