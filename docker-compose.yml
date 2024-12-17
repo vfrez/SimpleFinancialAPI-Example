@@ -10,7 +10,7 @@ services:
     hostname: api
     environment:
       DB_HOST: db
-      DB_PORT: 3306
+      DB_PORT: 5432
       DB_USER: user
       DB_PASSWORD: password
       DB_DATABASE: crediDebDb
@@ -23,23 +23,22 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.2'
+          cpus: '3.2'
           memory: '1.2GB'
     networks:
       - networker
 
   db: # Banco de dados
-    image: mysql:8.4.0
-    container_name: mysql
+    image: postgres:15
+    container_name: postgres
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_DATABASE: crediDebDb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crediDebDb
     ports:
-      - 3306:3306
+      - "5432:5432"
     healthcheck:
-      test: ["CMD", "mysql", "--user=user", "--password=password", "--execute", "SELECT 1"]
+      test: ["CMD-SHELL", "pg_isready -U user -d crediDebDb"]
       start_period: 10s
       interval: 5s
       timeout: 5s
@@ -47,7 +46,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '1.0'
           memory: '1.5GB'
     networks:
       - networker

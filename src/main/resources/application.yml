@@ -1,7 +1,7 @@
 # Valores podem ser definidos pelo docker-compose
 environment:
   dbHost: ${DB_HOST:localhost}
-  dbPort: ${DB_PORT:3306}
+  dbPort: ${DB_PORT:5432}
   dbUser: ${DB_USER:user}
   dbPassword: ${DB_PASSWORD:password}
   dbDatabase: ${DB_DATABASE:crediDebDb}
@@ -16,7 +16,7 @@ spring:
   application:
     name: CrediDeb
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       #Valida o esquema do banco de dados com as entidades mapeadas
       ddl-auto: validate
@@ -24,10 +24,10 @@ spring:
         #Para encontrar tabelas uppercase no banco de dados, por padrão o hibernate busca tudo com lowercase
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   datasource:
-    url: jdbc:mysql://${environment.dbHost}:${environment.dbPort}/${environment.dbDatabase}?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:postgresql://${environment.dbHost}:${environment.dbPort}/${environment.dbDatabase}
     username: ${environment.dbUser}
     password: ${environment.dbPassword}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 100           # Máximo de conexões ativas no pool
       minimum-idle: 10                # Mínimo de conexões inativas (conexões que podem ser reutilizadas rapidamente)
