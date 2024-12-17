@@ -13,6 +13,9 @@ server:
     connection-timeout: 20000 #tempo máximo de espera por uma conexão
 
 spring:
+#  threads:
+#    virtual:
+#      enabled: true
   application:
     name: CrediDeb
   jpa:
